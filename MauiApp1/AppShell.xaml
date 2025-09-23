@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="MauiApp1.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:MauiApp1"
+    Title="MauiApp1">
+
+    <Shell.TitleView>
+        <Label 
+            Text=" "
+            FontFamily="verdana"
+            FontSize="Title"
+            VerticalTextAlignment="Center"
+            HorizontalOptions="Center"
+            Padding="25, 25,25,0"
+            HeightRequest="50"/>
+    </Shell.TitleView>
+    <ShellContent
+        Title="Avaleht"
+        ContentTemplate="{DataTemplate local:StartPage}"
+        Route="StartPage" />
+
+</Shell>
