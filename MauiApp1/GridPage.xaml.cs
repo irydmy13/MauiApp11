@@ -50,6 +50,9 @@ public partial class GridPage : ContentPage
     enum BotLevel { Off, Easy, Medium, Hard }
     BotLevel botLevel = BotLevel.Off;
 
+    // NEW: за кого играет бот (по умолчанию за O)
+    string botSide = "O";
+
     // звук
     byte[]? _wavBytes; // для Windows кешируем в память
 
@@ -190,7 +193,7 @@ public partial class GridPage : ContentPage
 #endif
     }
 
-    // единая точка завершения: блокируем поле, играем звук и показываем окно
+    // точка завершения: блокируем поле, играем звук и показываем окно
     async Task EndGameAsync(string message)
     {
         gameOver = true;
@@ -199,13 +202,33 @@ public partial class GridPage : ContentPage
         await DisplayAlert("Игра окончена!", message, "OK");
     }
 
+    // ход бота, если сейчас его очередь
+    async Task BotMoveIfNeededAsync()
+    {
+        if (!vsBot || gameOver) return;
+        if (current != botSide) return;
+
+        await Task.Delay(200); // чуть-чуть паузы для UX
+        var m = ChooseBotMove();   // выбор хода по уровню
+        if (m is null) return;
+        var (rr, cc) = m.Value;
+
+        // бот ставит свой значок
+        marks[rr, cc].Text = SymOf(botSide);
+        marks[rr, cc].TextColor = (botSide == "X") ? xColor : oColor;
+
+        if (CheckWinner(out _)) { await EndGameAsync($"{botSide} выиграл!"); return; }
+        if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
+        SwitchPlayer();
+    }
+
     // ИГРА
     async void OnCellTapped(int r, int c)
     {
         if (gameOver) return; // игра уже завершена
         if (!string.IsNullOrEmpty(marks[r, c].Text)) return;
 
-        marks[r, c].Text = SymOf(current);   // ставим значок вместо X/O
+        marks[r, c].Text = SymOf(current);
         marks[r, c].TextColor = current == "X" ? xColor : oColor;
 
         if (CheckWinner(out _))
@@ -221,25 +244,8 @@ public partial class GridPage : ContentPage
 
         SwitchPlayer();
 
-        // ход бота
-        if (vsBot && current == "O")
-        {
-            Device.BeginInvokeOnMainThread(async () =>
-            {
-                await Task.Delay(200);
-                var m = ChooseBotMove();   // выбор хода по уровню
-                if (m is null) return;
-                var (rr, cc) = m.Value;
-
-                // бот ставит свой значок
-                marks[rr, cc].Text = SymOf("O");
-                marks[rr, cc].TextColor = oColor;
-
-                if (CheckWinner(out _)) { await EndGameAsync("O выиграл!"); return; }
-                if (IsDraw()) { await EndGameAsync("Ничья!"); return; }
-                SwitchPlayer();
-            });
-        }
+        // бот ходит за выбранную сторону
+        await BotMoveIfNeededAsync();
     }
 
     void SwitchPlayer() => current = current == "X" ? "O" : "X";
@@ -289,7 +295,7 @@ public partial class GridPage : ContentPage
         return list.Count == 0 ? null : list[rng.Next(list.Count)];
     }
 
-    // пустые клетки (перебор)
+    // пустые клетки
     IEnumerable<(int r, int c)> EmptyCells()
     {
         for (int r = 0; r < size; r++)
@@ -320,7 +326,7 @@ public partial class GridPage : ContentPage
         };
     }
 
-    // Средний: выиграть -> блок -> центр -> случайно
+    // Средний
     (int r, int c)? ChooseMediumMoveForO()
     {
         // выиграть
@@ -349,7 +355,7 @@ public partial class GridPage : ContentPage
         return RandomEmpty();
     }
 
-    // Сложный: выиграть -> блок -> центр -> угол -> сторона -> случайно
+    // Сложный:
     (int r, int c)? ChooseSmartMoveForO()
     {
         // выиграть
@@ -397,23 +403,29 @@ public partial class GridPage : ContentPage
         return RandomEmpty();
     }
 
-    // КТО ПЕРВЫЙ?
+    // "КТО ПЕРВЫЙ?"
     void StartNewGame(string? first = null)
     {
-        gameOver = false;                
+        gameOver = false;
         BoardGrid.InputTransparent = false;
 
         for (int r = 0; r < size; r++)
             for (int c = 0; c < size; c++)
                 marks[r, c].Text = "";
 
-        current = first ?? "X";           // используем выбранного, иначе X
+        current = first ?? "X"; 
+
+        // NEW: если бот должен ходить первым — даём ему ход сразу
+        Device.BeginInvokeOnMainThread(async () =>
+        {
+            await BotMoveIfNeededAsync();
+        });
     }
 
     // КНОПКИ
     void NewGameClicked(object sender, EventArgs e)
     {
-        StartNewGame();                    
+        StartNewGame();        
     }
 
     async void WhoStartsClicked(object sender, EventArgs e)
@@ -422,7 +434,7 @@ public partial class GridPage : ContentPage
         if (ch == "Случайно") ch = rng.Next(2) == 0 ? "X" : "O";
         if (ch == "X" || ch == "O")
         {
-            StartNewGame(ch);
+            StartNewGame(ch);           
         }
     }
 
@@ -459,10 +471,19 @@ public partial class GridPage : ContentPage
         };
         vsBot = botLevel != BotLevel.Off;
 
-        if (sender is Button btn)
-            btn.Text = vsBot ? $"Бот: {ch}" : "Игра без бота";
+        // если включили бота — выбираем, за кого он играет
+        if (vsBot)
+        {
+            var side = await DisplayActionSheet("За кого играет бот?", "Отмена", null, "X", "O");
+            if (side == "X" || side == "O")
+                botSide = side;
+        }
 
-        NewGameClicked(sender, EventArgs.Empty); // перезапуск партии
+        if (sender is Button btn)
+            btn.Text = vsBot ? $"Бот: {ch} ({botSide})" : "Игра без бота";
+
+        // перезапуск партии (учтёт, если бот должен ходить первым)
+        StartNewGame();
     }
 
     async void ChangeSizeClicked(object sender, EventArgs e)

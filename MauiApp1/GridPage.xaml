@@ -12,7 +12,7 @@
             <!-- Заголовок -->
             <Label x:Name="TitleLabel"
              Text="Trips Traps Trull"
-             FontSize="34"
+             FontSize="32"
              FontFamily = "nautilus"
              FontAttributes="Bold"
              TextColor="#30343A"
@@ -62,7 +62,7 @@
                 FontFamily = "nautilus"
                 Clicked="ExitClicked" />
 
-                <!-- Переключатель фона -->
+                <!-- Переключатель фона-->
                 <Button Grid.Row="3" Grid.ColumnSpan="2"
                 Text="Режим: День"
                 FontFamily = "nautilus"
