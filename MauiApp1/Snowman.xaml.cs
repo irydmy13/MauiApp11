@@ -21,219 +21,90 @@ namespace MauiApp1
     /// </summary>
     public partial class Snowman : ContentPage
     {
-        private CancellationTokenSource? _danceCts; // отмена "Танца"
-        private CancellationTokenSource? _snowCts;  // отмена "Снега"
-        private readonly Random _rnd = new();
-
-        private int SpeedMs => (int)SpeedStepper.Value;
+        Random random = new Random();
+        AbsoluteLayout taust;
+        Grid tahvel;
 
         public Snowman()
         {
-            InitializeComponent();
-
-            // Применим начальные значения контролов
-            SnowmanContainer.Opacity = OpacitySlider.Value;
-            SpeedValueLabel.Text = $"{SpeedMs} мс";
-
-            // Как только слой снега получит размер — запустим снег
-            SnowOverlay.SizeChanged += (s, e) =>
+            taust = new AbsoluteLayout
             {
-                if (SnowOverlay.Width > 0 && SnowOverlay.Height > 0 && _snowCts == null)
-                {
-                    _snowCts = new CancellationTokenSource();
-                    _ = StartSnowAsync(_snowCts.Token);
-                }
+                BackgroundColor = Color.FromRgb(10, 100, 100),
+
             };
-        }
-
-        /// <summary>Изменение прозрачности — просто меняем Opacity у контейнера снеговика.</summary>
-        private void OpacitySlider_ValueChanged(object sender, ValueChangedEventArgs e)
-        {
-            SnowmanContainer.Opacity = e.NewValue;
-        }
-
-        /// <summary>Обновляем подпись со скоростью.</summary>
-        private void SpeedStepper_ValueChanged(object sender, ValueChangedEventArgs e)
-        {
-            SpeedValueLabel.Text = $"{(int)e.NewValue} мс";
-        }
-
-        /// <summary>
-        /// Выполнение выбранного действия из Picker.
-        /// Перед новым действием всегда останавливаем текущий "Танец".
-        /// </summary>
-        private async void DoButton_Clicked(object sender, EventArgs e)
-        {
-            var choice = ActionPicker.SelectedItem as string;
-            if (string.IsNullOrWhiteSpace(choice))
+            var tausta_pilt = new Image
             {
-                await DisplayAlert("Действие", "Выберите действие из списка.", "OK");
+                Source = "snowtaust.png",
+                Aspect = Aspect.AspectFill
+            };
+            AbsoluteLayout.SetLayoutBounds(tausta_pilt, new Rect(0, 0, 1, 1));
+            AbsoluteLayout.SetLayoutFlags(tausta_pilt, AbsoluteLayoutFlags.All);
+
+
+            taust.Children.Add(tausta_pilt);
+            tahvel = new Grid
+            {
+                BackgroundColor = Colors.Transparent,
+                HeightRequest = (int)DeviceDisplay.MainDisplayInfo.Height,
+                WidthRequest = (int)DeviceDisplay.MainDisplayInfo.Width
+            };
+
+            // Tap (topeltklõps)
+            var tapGesture = new TapGestureRecognizer { NumberOfTapsRequired = 2 };
+            tapGesture.Tapped += TapGesture_Tapped;
+            tahvel.GestureRecognizers.Add(tapGesture);
+
+            // Pan (lohista ja lase lahti)
+            var panGesture = new PanGestureRecognizer();
+            panGesture.PanUpdated += PanGesture_PanUpdated;
+            tahvel.GestureRecognizers.Add(panGesture);
+
+            taust.Children.Add(tahvel);
+            Content = taust;
+        }
+
+        private void PanGesture_PanUpdated(object? sender, PanUpdatedEventArgs e)
+        {
+            if (e.StatusType == GestureStatus.Completed)
+            {
+                LisaLumi(e.TotalX + random.Next(0, (int)DeviceDisplay.MainDisplayInfo.Width / 4), e.TotalY, "snow.png");
+            }
+        }
+
+        private void TapGesture_Tapped(object? sender, TappedEventArgs e)
+        {
+            var point = e.GetPosition(tahvel);
+            if (point == null)
                 return;
-            }
 
-            // Остановить текущий танец (если был)
-            _danceCts?.Cancel();
-            _danceCts = null;
-
-            StatusLabel.Text = choice;
-
-            switch (choice)
-            {
-                case "Спрятать":
-                    SnowmanContainer.IsVisible = false;
-                    break;
-
-                case "Показать":
-                    SnowmanContainer.IsVisible = true;
-                    SnowmanContainer.Opacity = OpacitySlider.Value;
-                    await SnowmanContainer.ScaleTo(1.0, 1);
-                    await SnowmanContainer.TranslateTo(0, 0, 1);
-                    break;
-
-                case "Сменить цвет":
-                    if (await DisplayAlert("Сменить цвет", "Изменить случайно цвета шарфа и ведра?", "Да", "Нет"))
-                    {
-                        var scarf = Color.FromRgb(_rnd.Next(120, 256), _rnd.Next(30, 160), _rnd.Next(30, 160));
-                        var bucket = Color.FromRgb(_rnd.Next(90, 170), _rnd.Next(60, 120), _rnd.Next(20, 60));
-                        Scarf.BackgroundColor = scarf;
-                        BucketBody.BackgroundColor = bucket;
-                        BucketBrim.BackgroundColor = Darker(bucket, 0.85);
-                    }
-                    break;
-
-                case "Растопить":
-                    SnowmanContainer.IsVisible = true;
-                    // Бонус для атмосферы: слегка «роняем» ведро перед растапливанием
-                    await Task.WhenAll(
-                        SnowmanContainer.FadeTo(0.0, (uint)SpeedMs),
-                        SnowmanContainer.ScaleTo(0.4, (uint)SpeedMs, Easing.CubicIn)
-                    );
-                    break;
-
-                case "Танцевать":
-                    SnowmanContainer.IsVisible = true;
-                    _danceCts = new CancellationTokenSource();
-                    _ = DanceLoopAsync(_danceCts.Token);
-                    break;
-            }
+            LisaLumi(point.Value.X, point.Value.Y, "snowdrops.png");
         }
 
-        /// <summary>
-        /// Бесконечная анимация «танец»: движение влево-вправо, затем в центр.
-        /// Амплитуда ограничена, чтобы снеговик не «уплывал» под панель.
-        /// </summary>
-        private async Task DanceLoopAsync(CancellationToken ct)
+        private async void LisaLumi(double x, double y, string file)
         {
-            const double dx = 30; // пикселей по X
-            try
+            var lumi = new Image
             {
-                while (!ct.IsCancellationRequested)
-                {
-                    await SnowmanContainer.TranslateTo(-dx, 0, (uint)SpeedMs, Easing.SinInOut);
-                    if (ct.IsCancellationRequested) break;
+                Source = file,
+                HeightRequest = random.Next(20, 200),
+                WidthRequest = random.Next(20, 200),
+            };
 
-                    await SnowmanContainer.TranslateTo(+dx, 0, (uint)SpeedMs, Easing.SinInOut);
-                    if (ct.IsCancellationRequested) break;
+            // Asetame algselt punktile x,y
+            AbsoluteLayout.SetLayoutBounds(lumi, new Rect(x, y, lumi.WidthRequest, lumi.HeightRequest));
+            AbsoluteLayout.SetLayoutFlags(lumi, AbsoluteLayoutFlags.None);
 
-                    await SnowmanContainer.TranslateTo(0, 0, (uint)SpeedMs, Easing.SinInOut);
-                }
-            }
-            catch (TaskCanceledException) { }
-            finally
-            {
-                await SnowmanContainer.TranslateTo(0, 0, 1);
-            }
-        }
+            taust.Children.Add(lumi);
 
-        /// <summary>
-        /// Запускает фоновую «метель»: создаёт снежинки и для каждой крутит цикл падения.
-        /// Снежинка — маленький BoxView с большим скруглением (получается кружок).
-        /// </summary>
-        private async Task StartSnowAsync(CancellationToken ct)
-        {
-            // Кол-во снежинок подбираем умеренным: красиво и не грузит устройство
-            const int flakesCount = 36;
-            var flakes = new List<BoxView>(flakesCount);
+            // Anname juhusliku "tuule" (x nihke) ja kiiruse
+            double targetX = x + random.Next(-50, 50);  // veidi külgsuunas
+            double targetY = taust.Height;              // ekraani alaossa
+            uint duration = (uint)random.Next(3000, 7000); // kestus millisekundites
 
-            // Локальная функция — добавляет снежинку и запускает её анимацию
-            async Task SpawnAndFallAsync()
-            {
-                // пока не отменили — создаём новую снежинку, как только предыдущая упала
-                while (!ct.IsCancellationRequested)
-                {
-                    // Размер и прозрачность — случайные, для «живости»
-                    int size = _rnd.Next(4, 9);
-                    double opacity = 0.55 + _rnd.NextDouble() * 0.45;
+            // Anima lumesadu (liigub alla ja küljele)
+            await lumi.TranslateTo(targetX - x, targetY - y, duration, Easing.Linear);
 
-                    var flake = new BoxView
-                    {
-                        Color = Colors.White,
-                        CornerRadius = size / 2f,
-                        WidthRequest = size,
-                        HeightRequest = size,
-                        Opacity = opacity,
-                        InputTransparent = true
-                    };
-
-                    // Позиционируем пропорционально по X, а размер — в пикселях
-                    double x = _rnd.NextDouble();       // 0..1
-                    double y = -0.06 - _rnd.NextDouble() * 0.15; // чуть выше экрана
-                    AbsoluteLayout.SetLayoutFlags(flake, AbsoluteLayoutFlags.PositionProportional);
-                    AbsoluteLayout.SetLayoutBounds(flake, new Rect(x, y, size, size));
-
-                    SnowOverlay.Add(flake);
-
-                    // Параметры падения
-                    double drift = _rnd.Next(-25, 26);  // лёгкий снос по X
-                    int fallMs = _rnd.Next(3500, 8000); // длительность падения
-
-                    try
-                    {
-                        // Ждём кадр разметки, чтобы гарантированно знали высоту слоя
-                        await Task.Yield();
-                        // Падение — просто перенос по Y до низа плюс небольшой запас
-                        await flake.TranslateTo(drift, SnowOverlay.Height + 20, (uint)fallMs, Easing.Linear);
-                    }
-                    catch (TaskCanceledException) { /* отменили снег — нормально */ }
-                    finally
-                    {
-                        SnowOverlay.Remove(flake); // убираем упавшую снежинку
-                    }
-
-                    // Небольшая пауза перед новым «рождением» снежинки
-                    await Task.Delay(_rnd.Next(150, 600), ct).ConfigureAwait(false);
-                }
-            }
-
-            // Запускаем несколько «потоков снегопада» — так равномернее
-            var tasks = new List<Task>();
-            for (int i = 0; i < flakesCount; i++)
-                tasks.Add(SpawnAndFallAsync());
-
-            try { await Task.WhenAll(tasks); }
-            catch (TaskCanceledException) { /* нормальная остановка */ }
-        }
-
-        /// <summary>
-        /// Хелпер для затемнения цвета (для ободка ведра).
-        /// factor 0.0..1.0 — чем меньше, тем темнее.
-        /// </summary>
-        private static Color Darker(Color baseColor, double factor)
-        {
-            factor = Math.Clamp(factor, 0.0, 1.0);
-            return Color.FromRgb(
-                (int)(baseColor.Red * 255 * factor),
-                (int)(baseColor.Green * 255 * factor),
-                (int)(baseColor.Blue * 255 * factor)
-            );
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            // Чистим бесконечные анимации при уходе со страницы
-            _danceCts?.Cancel();
-            _snowCts?.Cancel();
+            // Kui lumi jõuab alla, eemaldame taustast
+            taust.Children.Remove(lumi);
         }
     }
 }

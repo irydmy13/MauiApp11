@@ -3,10 +3,139 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Valgusfoor"
              Title="Valgusfoor">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
-    </VerticalStackLayout>
+
+    <!-- фон -->
+    <ContentPage.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="Lavender" Offset="0.0"/>
+            <GradientStop Color="LightPink" Offset="1.0"/>
+        </LinearGradientBrush>
+    </ContentPage.Background>
+
+    <!-- 4 строки (часы+статус / панель со светофором / кнопки / переключатель), 2 колонки (текст + маленькая картинка) -->
+    <Grid RowDefinitions="Auto,*,Auto,Auto" ColumnDefinitions="*,Auto" Padding="12">
+
+        <!-- часы и статус -->
+        <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+            <Label x:Name="ClockLabel"
+                   Text="--:--:--"
+                   FontSize="18"
+                   TextColor="Gray"
+                   HorizontalOptions="Start"/>
+            <Label x:Name="HeaderLabel"
+                   Text="Светофор выключен"
+                   FontSize="22"
+                   FontAttributes="Bold"
+                   TextColor="DarkBlue"
+                   HorizontalOptions="Start"/>
+        </VerticalStackLayout>
+
+        <!-- картинка справа сверху -->
+        <Image Source="bg.jpg"
+               Grid.Row="0" Grid.Column="1"
+               WidthRequest="72"
+               HeightRequest="72"
+               Aspect="AspectFit"
+               Opacity="0.6"
+               HorizontalOptions="End"
+               VerticalOptions="Start"
+               Margin="0,4,4,0"/>
+
+        <!-- панель-окантовка вокруг светофора -->
+        <Border Grid.Row="1" Grid.ColumnSpan="2"
+                Padding="18"
+                Stroke="Black" StrokeThickness="2"
+                HorizontalOptions="Center"
+                MaximumWidthRequest="340"
+                >
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="24"/>
+            </Border.StrokeShape>
+            <Border.Shadow>
+                <Shadow Brush="#22000000" Radius="12" Opacity="0.6" />
+            </Border.Shadow>
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="DarkGrey" Offset="0.0"/>
+                    <GradientStop Color="DarkGray" Offset="1.0"/>
+                </LinearGradientBrush>
+            </Border.Background>
+
+            <!--  круги внутри панели -->
+            <VerticalStackLayout Spacing="14" HorizontalOptions="Center">
+
+                <!-- красный круг -->
+                <Frame x:Name="RedCircle"
+                       WidthRequest="110" HeightRequest="110"
+                       CornerRadius="100"
+                       BackgroundColor="Gray"
+                       BorderColor="Transparent"
+                       HasShadow="True"
+                       HorizontalOptions="Center">
+                    <Grid>
+                        <Label Text="Красный" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label x:Name="RedCountdown" Text="" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,6"/>
+                    </Grid>
+                </Frame>
+
+                <!-- жёлтый круг -->
+                <Frame x:Name="YellowCircle"
+                       WidthRequest="110" HeightRequest="110"
+                       CornerRadius="100"
+                       BackgroundColor="Gray"
+                       BorderColor="Transparent"
+                       HasShadow="True"
+                       HorizontalOptions="Center">
+                    <Grid>
+                        <Label Text="Жёлтый" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label x:Name="YellowCountdown" Text="" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,6"/>
+                    </Grid>
+                </Frame>
+
+                <!-- зелёный круг -->
+                <Frame x:Name="GreenCircle"
+                       WidthRequest="110" HeightRequest="110"
+                       CornerRadius="100"
+                       BackgroundColor="Gray"
+                       BorderColor="Transparent"
+                       HasShadow="True"
+                       HorizontalOptions="Center">
+                    <Grid>
+                        <Label Text="Зелёный" HorizontalOptions="Center" VerticalOptions="Center"/>
+                        <Label x:Name="GreenCountdown" Text="" FontAttributes="Bold"
+                               HorizontalOptions="Center" VerticalOptions="End" Margin="0,0,0,6"/>
+                    </Grid>
+                </Frame>
+
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- кнопки -->
+        <HorizontalStackLayout Grid.Row="2" Grid.ColumnSpan="2"
+                               HorizontalOptions="Center"
+                               Spacing="16"
+                               Margin="0,10,0,0">
+            <Button Text="Включить"
+                    Clicked="OnSisseClicked"
+                    Padding="20,10"
+                    CornerRadius="20"/>
+            <Button Text="Выключить"
+                    Clicked="OnValjaClicked"
+                    Padding="20,10"
+                    CornerRadius="20"/>
+        </HorizontalStackLayout>
+
+        <!-- переключатель день/ночь -->
+        <HorizontalStackLayout Grid.Row="3" Grid.ColumnSpan="2"
+                               HorizontalOptions="Center"
+                               Spacing="10"
+                               Margin="0,6,0,16">
+            <Label Text="День" VerticalTextAlignment="Center"/>
+            <Switch x:Name="NightSwitch" Toggled="OnNightToggled"/>
+            <Label Text="Ночь" VerticalTextAlignment="Center"/>
+        </HorizontalStackLayout>
+
+    </Grid>
 </ContentPage>

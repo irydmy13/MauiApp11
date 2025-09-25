@@ -11,19 +11,13 @@ public partial class StartPage : ContentPage
         new FigurePage(),
         new TimerPage(),
         new DateTimePage(),
-
         new Snowman(),
         new GridPage(),
-
-        new Valgusfoor(),
-        new Snowman(),
-        new GrigPage()
     };
 
     public List<string> tekstid = new List<string>()
 
-    { "Tee lahti leht Tekst'ga", "Tee lahti Figure leht","KГ¤ivita taimeri", "KuupГ¤evad ja kellaajad", "Valgusfoor", "Lumememm", "Grid" };
-
+    { "Tee lahti leht Tekst'ga", "Tee lahti Figure leht", "Kaivita taimeri", "Kuupaevad ja kellaajad", "Lumememm", "Trips Traps Trull"};
 
     ScrollView sv;             
     VerticalStackLayout vsl;   

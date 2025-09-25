@@ -274,4 +274,4 @@ public partial class Valgusfoor : ContentPage      // Страница (экра
         if (!clockTimer.IsRunning)                 // Если часы ещё не идут
             clockTimer.Start();                    // Запускаем
     }
-}                                                  // Конец класса/файла
+}                                               
