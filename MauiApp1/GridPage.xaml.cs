@@ -41,6 +41,15 @@ public partial class GridPage : ContentPage
     readonly Color btnBgDark = Color.FromArgb("#DAA520");
     readonly Color btnTextDark = Colors.Black;
 
+    // значки игроков (монохромные, перекрашиваются через TextColor)
+    string symbolX = "X";
+    string symbolO = "O";
+    string SymOf(string who) => who == "X" ? symbolX : symbolO;
+
+    // уровень бота
+    enum BotLevel { Off, Easy, Medium, Hard }
+    BotLevel botLevel = BotLevel.Off;
+
     // звук
     byte[]? _wavBytes; // для Windows кешируем в память
 
@@ -196,7 +205,7 @@ public partial class GridPage : ContentPage
         if (gameOver) return; // игра уже завершена
         if (!string.IsNullOrEmpty(marks[r, c].Text)) return;
 
-        marks[r, c].Text = current;
+        marks[r, c].Text = SymOf(current);   // ставим значок вместо X/O
         marks[r, c].TextColor = current == "X" ? xColor : oColor;
 
         if (CheckWinner(out _))
@@ -218,10 +227,12 @@ public partial class GridPage : ContentPage
             Device.BeginInvokeOnMainThread(async () =>
             {
                 await Task.Delay(200);
-                var m = RandomEmpty();
+                var m = ChooseBotMove();   // выбор хода по уровню
                 if (m is null) return;
                 var (rr, cc) = m.Value;
-                marks[rr, cc].Text = "O";
+
+                // бот ставит свой значок
+                marks[rr, cc].Text = SymOf("O");
                 marks[rr, cc].TextColor = oColor;
 
                 if (CheckWinner(out _)) { await EndGameAsync("O выиграл!"); return; }
@@ -278,16 +289,131 @@ public partial class GridPage : ContentPage
         return list.Count == 0 ? null : list[rng.Next(list.Count)];
     }
 
-    // КНОПКИ
-    void NewGameClicked(object sender, EventArgs e)
+    // пустые клетки (перебор)
+    IEnumerable<(int r, int c)> EmptyCells()
     {
-        gameOver = false;                 // ← снимаем блокировку
+        for (int r = 0; r < size; r++)
+            for (int c = 0; c < size; c++)
+                if (string.IsNullOrEmpty(marks[r, c].Text))
+                    yield return (r, c);
+    }
+
+    // проверить: если поставить symbol в (r,c), будет ли победа?
+    bool WouldWinAt(int r, int c, string symbol)
+    {
+        var old = marks[r, c].Text;
+        marks[r, c].Text = symbol;
+        bool win = CheckWinner(out _);
+        marks[r, c].Text = old;
+        return win;
+    }
+
+    // выбор хода по уровню
+    (int r, int c)? ChooseBotMove()
+    {
+        return botLevel switch
+        {
+            BotLevel.Easy => RandomEmpty(),
+            BotLevel.Medium => ChooseMediumMoveForO(),
+            BotLevel.Hard => ChooseSmartMoveForO(),
+            _ => null
+        };
+    }
+
+    // Средний: выиграть -> блок -> центр -> случайно
+    (int r, int c)? ChooseMediumMoveForO()
+    {
+        // выиграть
+        foreach (var (r, c) in EmptyCells())
+            if (WouldWinAt(r, c, symbolO)) return (r, c);
+
+        // блок
+        foreach (var (r, c) in EmptyCells())
+            if (WouldWinAt(r, c, symbolX)) return (r, c);
+
+        // центр(ы)
+        if (size % 2 == 1)
+        {
+            int m = size / 2;
+            if (string.IsNullOrEmpty(marks[m, m].Text)) return (m, m);
+        }
+        else
+        {
+            int a = size / 2 - 1, b = size / 2;
+            var centers = new[] { (a, a), (a, b), (b, a), (b, b) };
+            foreach (var p in centers)
+                if (string.IsNullOrEmpty(marks[p.Item1, p.Item2].Text)) return p;
+        }
+
+        // случайно
+        return RandomEmpty();
+    }
+
+    // Сложный: выиграть -> блок -> центр -> угол -> сторона -> случайно
+    (int r, int c)? ChooseSmartMoveForO()
+    {
+        // выиграть
+        foreach (var (r, c) in EmptyCells())
+            if (WouldWinAt(r, c, symbolO)) return (r, c);
+
+        // блок
+        foreach (var (r, c) in EmptyCells())
+            if (WouldWinAt(r, c, symbolX)) return (r, c);
+
+        // центр(ы)
+        if (size % 2 == 1)
+        {
+            int m = size / 2;
+            if (string.IsNullOrEmpty(marks[m, m].Text)) return (m, m);
+        }
+        else
+        {
+            int a = size / 2 - 1, b = size / 2;
+            var centers = new[] { (a, a), (a, b), (b, a), (b, b) };
+            var freeCenters = centers.Where(p => string.IsNullOrEmpty(marks[p.Item1, p.Item2].Text)).ToList();
+            if (freeCenters.Count > 0) return freeCenters[rng.Next(freeCenters.Count)];
+        }
+
+        // углы
+        var corners = new (int r, int c)[] { (0, 0), (0, size - 1), (size - 1, 0), (size - 1, size - 1) };
+        var freeCorners = corners.Where(p => p.r >= 0 && p.c >= 0 && p.r < size && p.c < size
+                                           && string.IsNullOrEmpty(marks[p.r, p.c].Text)).ToList();
+        if (freeCorners.Count > 0) return freeCorners[rng.Next(freeCorners.Count)];
+
+        // стороны
+        var sides = new List<(int r, int c)>();
+        for (int i = 1; i < size - 1; i++)
+        {
+            sides.Add((0, i));
+            sides.Add((size - 1, i));
+            sides.Add((i, 0));
+            sides.Add((i, size - 1));
+        }
+        var freeSides = sides.Where(p => p.r >= 0 && p.c >= 0 && p.r < size && p.c < size
+                                      && string.IsNullOrEmpty(marks[p.r, p.c].Text)).ToList();
+        if (freeSides.Count > 0) return freeSides[rng.Next(freeSides.Count)];
+
+        // случайно
+        return RandomEmpty();
+    }
+
+    // КТО ПЕРВЫЙ?
+    void StartNewGame(string? first = null)
+    {
+        gameOver = false;                
         BoardGrid.InputTransparent = false;
 
         for (int r = 0; r < size; r++)
             for (int c = 0; c < size; c++)
                 marks[r, c].Text = "";
-        current = "X";
+
+        current = first ?? "X";           // используем выбранного, иначе X
+    }
+
+    // КНОПКИ
+    void NewGameClicked(object sender, EventArgs e)
+    {
+        StartNewGame();                    
     }
 
     async void WhoStartsClicked(object sender, EventArgs e)
@@ -296,8 +422,7 @@ public partial class GridPage : ContentPage
         if (ch == "Случайно") ch = rng.Next(2) == 0 ? "X" : "O";
         if (ch == "X" || ch == "O")
         {
-            current = ch;
-            NewGameClicked(sender, EventArgs.Empty);
+            StartNewGame(ch);
         }
     }
 
@@ -314,16 +439,30 @@ public partial class GridPage : ContentPage
         for (int r = 0; r < size; r++)
             for (int c = 0; c < size; c++)
             {
-                if (marks[r, c].Text == "X") marks[r, c].TextColor = xColor;
-                if (marks[r, c].Text == "O") marks[r, c].TextColor = oColor;
+                if (marks[r, c].Text == symbolX) marks[r, c].TextColor = xColor;
+                if (marks[r, c].Text == symbolO) marks[r, c].TextColor = oColor;
             }
     }
 
-    void ToggleBotClicked(object sender, EventArgs e)
+    async void ToggleBotClicked(object sender, EventArgs e)
     {
-        vsBot = !vsBot;
-        (sender as Button)!.Text = vsBot ? "Игра с ботом" : "Игра без бота";
-        NewGameClicked(sender, EventArgs.Empty);
+        // выбор уровня бота
+        var ch = await DisplayActionSheet("Уровень бота", "Отмена", null, "Выкл", "Лёгкий", "Средний", "Сложный");
+        if (string.IsNullOrEmpty(ch) || ch == "Отмена") return;
+
+        botLevel = ch switch
+        {
+            "Лёгкий" => BotLevel.Easy,
+            "Средний" => BotLevel.Medium,
+            "Сложный" => BotLevel.Hard,
+            _ => BotLevel.Off
+        };
+        vsBot = botLevel != BotLevel.Off;
+
+        if (sender is Button btn)
+            btn.Text = vsBot ? $"Бот: {ch}" : "Игра без бота";
+
+        NewGameClicked(sender, EventArgs.Empty); // перезапуск партии
     }
 
     async void ChangeSizeClicked(object sender, EventArgs e)

@@ -62,7 +62,7 @@
                 FontFamily = "nautilus"
                 Clicked="ExitClicked" />
 
-                <!-- Переключатель фона (ТОЛЬКО фон страницы) -->
+                <!-- Переключатель фона -->
                 <Button Grid.Row="3" Grid.ColumnSpan="2"
                 Text="Режим: День"
                 FontFamily = "nautilus"
