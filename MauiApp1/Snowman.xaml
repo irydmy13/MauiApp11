@@ -1,12 +1,46 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MauiApp1.Snowman"
              Title="Snowman">
-    <VerticalStackLayout>
-        <Label 
-            Text="Welcome to .NET MAUI!"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+
+    <!-- Фон страницы -->
+    <ContentPage.Background>
+        <ImageBrush x:Name="BackgroundBrush" ImageSource="day.jpg" Stretch="UniformToFill"/>
+    </ContentPage.Background>
+
+    <VerticalStackLayout Padding="10" Spacing="15">
+
+        <!-- Переключатель День/Ночь -->
+        <HorizontalStackLayout HorizontalOptions="Center">
+            <Label Text="🌞 День" VerticalOptions="Center" FontSize="18"/>
+            <Switch x:Name="DayNightSwitch" Toggled="DayNightSwitch_Toggled" />
+            <Label Text="🌙 Ночь" VerticalOptions="Center" FontSize="18"/>
+        </HorizontalStackLayout>
+
+        <!-- Элементы управления -->
+        <Label x:Name="SpeedLabel" Text="Скорость:" FontSize="16" />
+        <Slider x:Name="SpeedSlider" Minimum="200" Maximum="3000" ValueChanged="SpeedSlider_ValueChanged"/>
+        <Label x:Name="ActionLabel" Text="Действие:" FontSize="16"/>
+        <Picker x:Name="ActionPicker">
+            <Picker.Items>
+                <x:String>Скрыть</x:String>
+                <x:String>Показать</x:String>
+                <x:String>Изменить цвет</x:String>
+                <x:String>Растопить</x:String>
+                <x:String>Танцевать</x:String>
+            </Picker.Items>
+        </Picker>
+        <Button Text="Выполнить" Clicked="RunBtn_Clicked"/>
+
+        <!-- Снеговик -->
+        <Grid x:Name="SnowmanGroup" HorizontalOptions="Center" VerticalOptions="Center">
+            <Ellipse x:Name="BottomCircle" WidthRequest="120" HeightRequest="120" Fill="White"/>
+            <Ellipse x:Name="MiddleCircle" WidthRequest="90" HeightRequest="90" Fill="White" TranslationY="-80"/>
+            <Ellipse x:Name="HeadCircle" WidthRequest="60" HeightRequest="60" Fill="White" TranslationY="-140"/>
+        </Grid>
+
+        <!-- Прозрачность -->
+        <Slider x:Name="OpacitySlider" Minimum="0.1" Maximum="1" Value="1"
+                ValueChanged="OpacitySlider_ValueChanged"/>
     </VerticalStackLayout>
 </ContentPage>

@@ -1,110 +1,134 @@
 using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Layouts;
+using Microsoft.Maui.Graphics;
 
-namespace MauiApp1
+namespace MauiApp1;
+
+public partial class Snowman : ContentPage
 {
-    /// <summary>
-    /// Логика страницы Snowman.
-    /// Что здесь есть:
-    ///  • Управление действиями (Спрятать/Показать/Сменить цвет/Растопить/Танцевать)
-    ///  • «Падающий снег» — независимая бесконечная анимация маленьких кружков.
-    ///  • Улучшенное ведро: корпус + поля + ручка (цвет можно менять в «Сменить цвет»).
-    ///
-    /// Принципы:
-    ///  • Все манипуляции делаем над контейнером SnowmanContainer — так проще анимировать всё сразу.
-    ///  • Снежинки добавляем во внешний слой SnowOverlay и анимируем TranslateTo вниз.
-    ///  • Для отмены бесконечных анимаций держим CancellationTokenSource.
-    /// </summary>
-    public partial class Snowman : ContentPage
+    readonly Random _rnd = new();
+    uint _speedMs = 800;
+    bool _isDancing;
+
+    public Snowman()
     {
-        Random random = new Random();
-        AbsoluteLayout taust;
-        Grid tahvel;
+        InitializeComponent();
 
-        public Snowman()
+        SnowmanGroup.AnchorX = 0.5;
+        SnowmanGroup.AnchorY = 0.5;
+
+        SpeedLabel.Text = $"Текущая скорость: {(int)_speedMs} мс";
+        ActionLabel.Text = "Действие: Показать";
+    }
+
+    private const double MinMs = 200;
+    private const double MaxMs = 3000;
+
+    public object BackgroundBrush { get; private set; }
+
+    private void SpeedSlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        var duration = MaxMs + MinMs - e.NewValue;
+        _speedMs = (uint)duration;
+        SpeedLabel.Text = $"Скорость: {(int)_speedMs} мс";
+    }
+
+    private async void RunBtn_Clicked(object sender, EventArgs e)
+    {
+        var action = ActionPicker.SelectedItem as string;
+        ActionLabel.Text = $"Действие: {action ?? "(выберите)"}";
+
+        _isDancing = false;
+
+        switch (action)
         {
-            taust = new AbsoluteLayout
-            {
-                BackgroundColor = Color.FromRgb(10, 100, 100),
-
-            };
-            var tausta_pilt = new Image
-            {
-                Source = "snowtaust.png",
-                Aspect = Aspect.AspectFill
-            };
-            AbsoluteLayout.SetLayoutBounds(tausta_pilt, new Rect(0, 0, 1, 1));
-            AbsoluteLayout.SetLayoutFlags(tausta_pilt, AbsoluteLayoutFlags.All);
+            case "Скрыть": await HideSnowman(); break;
+            case "Показать": await ShowSnowman(); break;
+            case "Изменить цвет": await ChangeColor(); break;
+            case "Растопить": await Melt(); break;
+            case "Танцевать": _ = Dance(); break;
+            default:
+                await DisplayAlert("Ошибка", "Пожалуйста, выберите действие.", "OK");
+                break;
+        }
+    }
 
 
-            taust.Children.Add(tausta_pilt);
-            tahvel = new Grid
-            {
-                BackgroundColor = Colors.Transparent,
-                HeightRequest = (int)DeviceDisplay.MainDisplayInfo.Height,
-                WidthRequest = (int)DeviceDisplay.MainDisplayInfo.Width
-            };
+    private async Task HideSnowman()
+    {
+        await SnowmanGroup.FadeTo(0, _speedMs / 2);
+        SnowmanGroup.IsVisible = false;
+    }
 
-            // Tap (topeltklõps)
-            var tapGesture = new TapGestureRecognizer { NumberOfTapsRequired = 2 };
-            tapGesture.Tapped += TapGesture_Tapped;
-            tahvel.GestureRecognizers.Add(tapGesture);
+    private async Task ShowSnowman()
+    {
+        SnowmanGroup.IsVisible = true;
+        await SnowmanGroup.FadeTo(1, _speedMs / 2);
+        await SnowmanGroup.TranslateTo(0, 0, 1);
+        await SnowmanGroup.ScaleTo(1, 1);
+    }
 
-            // Pan (lohista ja lase lahti)
-            var panGesture = new PanGestureRecognizer();
-            panGesture.PanUpdated += PanGesture_PanUpdated;
-            tahvel.GestureRecognizers.Add(panGesture);
+    private Task ChangeColor()
+    {
+        var snow = Color.FromRgb(_rnd.Next(200, 256),
+                                 _rnd.Next(200, 256),
+                                 _rnd.Next(200, 256));
 
-            taust.Children.Add(tahvel);
-            Content = taust;
+        HeadCircle.Fill = new SolidColorBrush(snow);
+        MiddleCircle.Fill = new SolidColorBrush(snow);
+        BottomCircle.Fill = new SolidColorBrush(snow);
+
+        return Task.CompletedTask;
+    }
+
+    private async Task Melt()
+    {
+        SnowmanGroup.IsVisible = true;
+        await SnowmanGroup.ScaleTo(0.6, _speedMs);
+        await SnowmanGroup.FadeTo(0, _speedMs);
+        SnowmanGroup.IsVisible = false;
+
+        SnowmanGroup.Scale = 1;
+        SnowmanGroup.Opacity = OpacitySlider.Value;
+    }
+
+    private async Task Dance()
+    {
+        _isDancing = true;
+        SnowmanGroup.IsVisible = true;
+
+        while (_isDancing)
+        {
+            await SnowmanGroup.TranslateTo(-30, 0, _speedMs, Easing.SinInOut);
+            if (!_isDancing) break;
+            await SnowmanGroup.TranslateTo(30, 0, _speedMs, Easing.SinInOut);
+        }
+        await SnowmanGroup.TranslateTo(0, 0, 200);
+    }
+
+    private void OpacitySlider_ValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        SnowmanGroup.Opacity = e.NewValue;
+    }
+
+    // День/Ночь 
+    private async void DayNightSwitch_Toggled(object sender, ToggledEventArgs e)
+    {
+        // Плавное затемнение
+        await this.FadeTo(0.3, 500, Easing.SinInOut);
+
+        // Смена картинки
+        if (e.Value)
+        {
+            BackgroundBrush.ImageSource = "night.jpg";
+        }
+        else
+        {
+            BackgroundBrush.ImageSource = "day.jpg";
         }
 
-        private void PanGesture_PanUpdated(object? sender, PanUpdatedEventArgs e)
-        {
-            if (e.StatusType == GestureStatus.Completed)
-            {
-                LisaLumi(e.TotalX + random.Next(0, (int)DeviceDisplay.MainDisplayInfo.Width / 4), e.TotalY, "snow.png");
-            }
-        }
-
-        private void TapGesture_Tapped(object? sender, TappedEventArgs e)
-        {
-            var point = e.GetPosition(tahvel);
-            if (point == null)
-                return;
-
-            LisaLumi(point.Value.X, point.Value.Y, "snowdrops.png");
-        }
-
-        private async void LisaLumi(double x, double y, string file)
-        {
-            var lumi = new Image
-            {
-                Source = file,
-                HeightRequest = random.Next(20, 200),
-                WidthRequest = random.Next(20, 200),
-            };
-
-            // Asetame algselt punktile x,y
-            AbsoluteLayout.SetLayoutBounds(lumi, new Rect(x, y, lumi.WidthRequest, lumi.HeightRequest));
-            AbsoluteLayout.SetLayoutFlags(lumi, AbsoluteLayoutFlags.None);
-
-            taust.Children.Add(lumi);
-
-            // Anname juhusliku "tuule" (x nihke) ja kiiruse
-            double targetX = x + random.Next(-50, 50);  // veidi külgsuunas
-            double targetY = taust.Height;              // ekraani alaossa
-            uint duration = (uint)random.Next(3000, 7000); // kestus millisekundites
-
-            // Anima lumesadu (liigub alla ja küljele)
-            await lumi.TranslateTo(targetX - x, targetY - y, duration, Easing.Linear);
-
-            // Kui lumi jõuab alla, eemaldame taustast
-            taust.Children.Remove(lumi);
-        }
+        // Плавное возвращение яркости
+        await this.FadeTo(1, 500, Easing.SinInOut);
     }
 }
