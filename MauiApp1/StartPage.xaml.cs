@@ -11,14 +11,14 @@ public partial class StartPage : ContentPage
         //new FigurePage(),
         //new TimerPage(),
         //new DateTimePage(),
-        new Snowman(),
         new GridPage(),
+        new Snowman(),
         new PuslePage(),
     };
 
     public List<string> tekstid = new List<string>()
 
-    {"Lumememm", "Trips Traps Trull", "Pusle"};
+    {"Trips Traps Trull","Lumememm", "Pusle"};
 
     ScrollView sv;             
     VerticalStackLayout vsl;   
