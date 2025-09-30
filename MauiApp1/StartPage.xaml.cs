@@ -7,10 +7,10 @@ public partial class StartPage : ContentPage
 
     public List<ContentPage> lehed = new List<ContentPage>()
     {
-        new TextPage(),
-        new FigurePage(),
-        new TimerPage(),
-        new DateTimePage(),
+       //new TextPage(),
+        //new FigurePage(),
+        //new TimerPage(),
+        //new DateTimePage(),
         new Snowman(),
         new GridPage(),
         new PuslePage(),
@@ -18,7 +18,7 @@ public partial class StartPage : ContentPage
 
     public List<string> tekstid = new List<string>()
 
-    { "Tee lahti leht Tekst'ga", "Tee lahti Figure leht", "Kaivita taimeri", "Kuupaevad ja kellaajad", "Lumememm", "Trips Traps Trull", "Pusle"};
+    {"Lumememm", "Trips Traps Trull", "Pusle"};
 
     ScrollView sv;             
     VerticalStackLayout vsl;   

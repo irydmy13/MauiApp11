@@ -41,7 +41,7 @@ public partial class GridPage : ContentPage
     readonly Color btnBgDark = Color.FromArgb("#DAA520");
     readonly Color btnTextDark = Colors.Black;
 
-    // значки игроков (монохромные, перекрашиваются через TextColor)
+    // значки игроков (перекрашиваются через TextColor)
     string symbolX = "X";
     string symbolO = "O";
     string SymOf(string who) => who == "X" ? symbolX : symbolO;
@@ -50,11 +50,11 @@ public partial class GridPage : ContentPage
     enum BotLevel { Off, Easy, Medium, Hard }
     BotLevel botLevel = BotLevel.Off;
 
-    // NEW: за кого играет бот (по умолчанию за O)
+    // по умолчанию бот  за O
     string botSide = "O";
 
     // звук
-    byte[]? _wavBytes; // для Windows кешируем в память
+    byte[]? _wavBytes;
 
     public GridPage()
     {
@@ -337,7 +337,6 @@ public partial class GridPage : ContentPage
         foreach (var (r, c) in EmptyCells())
             if (WouldWinAt(r, c, symbolX)) return (r, c);
 
-        // центр(ы)
         if (size % 2 == 1)
         {
             int m = size / 2;
@@ -415,7 +414,7 @@ public partial class GridPage : ContentPage
 
         current = first ?? "X"; 
 
-        // NEW: если бот должен ходить первым — даём ему ход сразу
+        // если бот должен ходить первым — даём ему ход сразу
         Device.BeginInvokeOnMainThread(async () =>
         {
             await BotMoveIfNeededAsync();
@@ -544,6 +543,6 @@ public partial class GridPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
-        await EnsureSoundLoadedAsync(); // подгрузим звук Windows
+        await EnsureSoundLoadedAsync();
     }
 }

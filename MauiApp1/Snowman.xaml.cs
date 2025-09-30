@@ -37,8 +37,7 @@ public partial class Snowman : ContentPage
     private async void RunBtn_Clicked(object sender, EventArgs e)
     {
         var action = ActionPicker.SelectedItem as string;
-        ActionLabel.Text = $"Действие: {action ?? "(выберите)"}";
-
+        ActionLabel.Text = $"Действие: {action ?? "(выберите)"}";ˇˇ
         _isDancing = false;
 
         switch (action)

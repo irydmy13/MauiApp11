@@ -53,7 +53,6 @@ public partial class PuslePage : ContentPage
         mainLayout.Children.Add(sourcegrid);
         mainLayout.Children.Add(targetgrid);
 
-
         Content = mainLayout;
     }
     private void InitializePieces()

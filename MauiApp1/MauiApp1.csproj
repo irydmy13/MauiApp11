@@ -60,10 +60,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Remove="DateTimePage.xaml.cs" />
+	  <Compile Remove="FigurePage.xaml.cs" />
+	  <Compile Remove="TextPage.xaml.cs" />
+	  <Compile Remove="TimerPage.xaml.cs" />
 	  <Compile Remove="Valgusfoor.xaml.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Remove="DateTimePage.xaml" />
+	  <MauiXaml Remove="FigurePage.xaml" />
+	  <MauiXaml Remove="TextPage.xaml" />
+	  <MauiXaml Remove="TimerPage.xaml" />
 	  <MauiXaml Remove="Valgusfoor.xaml" />
 	</ItemGroup>
 
@@ -83,12 +91,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="DateTimePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="FigurePage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
 	  <MauiXaml Update="PuslePage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
@@ -96,12 +98,6 @@
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="StartPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="TextPage.xaml">
-	    <Generator>MSBuild:Compile</Generator>
-	  </MauiXaml>
-	  <MauiXaml Update="TimerPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>
