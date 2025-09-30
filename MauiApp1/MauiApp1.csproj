@@ -82,6 +82,7 @@
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.5" />
+		<PackageReference Include="SkiaSharp" Version="3.119.1" />
 	</ItemGroup>
 
 	<ItemGroup>

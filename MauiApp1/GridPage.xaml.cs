@@ -164,41 +164,41 @@ public partial class GridPage : ContentPage
         _wavBytes = ms.ToArray();
     }
 
-    async Task PlayGameOverAsync()
-    {
-#if ANDROID
-        try
-        {
-            var ctx = Android.App.Application.Context;
-            using var afd = ctx.Assets.OpenFd("gameover.wav");
+//    async Task PlayGameOverAsync()
+//    {
+//#if ANDROID
+//        try
+//        {
+//            var ctx = Android.App.Application.Context;
+//            using var afd = ctx.Assets.OpenFd("gameover.wav");
 
-            var mp = new MediaPlayer();
-            mp.Prepared += (s, e) => mp.Start();
-            mp.Completion += (s, e) => { mp.Release(); mp.Dispose(); };
-            mp.SetDataSource(afd.FileDescriptor, afd.StartOffset, afd.Length);
-            mp.PrepareAsync();
-        }
-        catch { /* ignore */ }
-#elif WINDOWS
-        try
-        {
-            if (_wavBytes == null) await EnsureSoundLoadedAsync();
-            using var sp = new SoundPlayer(new MemoryStream(_wavBytes!)); // System.Media
-            sp.Load();   // загружаем в память
-            sp.Play();   // асинхронно
-        }
-        catch { /* ignore */ }
-#else
-        await Task.CompletedTask; // другие платформы — пока тишина
-#endif
-    }
+//            var mp = new MediaPlayer();
+//            mp.Prepared += (s, e) => mp.Start();
+//            mp.Completion += (s, e) => { mp.Release(); mp.Dispose(); };
+//            mp.SetDataSource(afd.FileDescriptor, afd.StartOffset, afd.Length);
+//            mp.PrepareAsync();
+//        }
+//        catch { /* ignore */ }
+//#elif WINDOWS
+//        try
+//        {
+//            if (_wavBytes == null) await EnsureSoundLoadedAsync();
+//            using var sp = new SoundPlayer(new MemoryStream(_wavBytes!)); // System.Media
+//            sp.Load();   // загружаем в память
+//            sp.Play();   // асинхронно
+//        }
+//        catch { /* ignore */ }
+//#else
+//        await Task.CompletedTask; // другие платформы — пока тишина
+//#endif
+//    }
 
     // точка завершения: блокируем поле, играем звук и показываем окно
     async Task EndGameAsync(string message)
     {
         gameOver = true;
         BoardGrid.InputTransparent = true; // блокируем все тапы по клеткам
-        await PlayGameOverAsync();
+        //await PlayGameOverAsync();
         await DisplayAlert("Игра окончена!", message, "OK");
     }
 

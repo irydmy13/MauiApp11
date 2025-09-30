@@ -1,20 +1,18 @@
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="MauiApp1.Snowman"
-             Title="Snowman">
-
-    <!-- Фон страницы -->
-    <ContentPage.Background>
-        <ImageBrush x:Name="BackgroundBrush" ImageSource="day.jpg" Stretch="UniformToFill"/>
-    </ContentPage.Background>
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="MauiApp1.Snowman"
+    Title="Snowman"
+    BackgroundImageSource="day.jpg">
 
     <VerticalStackLayout Padding="10" Spacing="15">
 
         <!-- Переключатель День/Ночь -->
         <HorizontalStackLayout HorizontalOptions="Center">
-            <Label Text="🌞 День" VerticalOptions="Center" FontSize="18"/>
+            <Label Text="День" VerticalOptions="Center" FontSize="18"/>
             <Switch x:Name="DayNightSwitch" Toggled="DayNightSwitch_Toggled" />
-            <Label Text="🌙 Ночь" VerticalOptions="Center" FontSize="18"/>
+            <Label Text="Ночь" VerticalOptions="Center" FontSize="18"/>
         </HorizontalStackLayout>
 
         <!-- Элементы управления -->

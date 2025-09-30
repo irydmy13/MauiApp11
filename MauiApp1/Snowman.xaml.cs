@@ -25,7 +25,7 @@ public partial class Snowman : ContentPage
     private const double MinMs = 200;
     private const double MaxMs = 3000;
 
-    public object BackgroundBrush { get; private set; }
+    // УДАЛЕНО: public object BackgroundBrush { get; private set; }
 
     private void SpeedSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
@@ -37,7 +37,7 @@ public partial class Snowman : ContentPage
     private async void RunBtn_Clicked(object sender, EventArgs e)
     {
         var action = ActionPicker.SelectedItem as string;
-        ActionLabel.Text = $"Действие: {action ?? "(выберите)"}";ˇˇ
+        ActionLabel.Text = $"Действие: {action ?? "(выберите)"}";
         _isDancing = false;
 
         switch (action)
@@ -52,7 +52,6 @@ public partial class Snowman : ContentPage
                 break;
         }
     }
-
 
     private async Task HideSnowman()
     {
@@ -111,21 +110,14 @@ public partial class Snowman : ContentPage
         SnowmanGroup.Opacity = e.NewValue;
     }
 
-    // День/Ночь 
+    // День/Ночь (без ImageBrush)
     private async void DayNightSwitch_Toggled(object sender, ToggledEventArgs e)
     {
         // Плавное затемнение
         await this.FadeTo(0.3, 500, Easing.SinInOut);
 
-        // Смена картинки
-        if (e.Value)
-        {
-            BackgroundBrush.ImageSource = "night.jpg";
-        }
-        else
-        {
-            BackgroundBrush.ImageSource = "day.jpg";
-        }
+        // Смена фона
+        this.BackgroundImageSource = e.Value ? "night.jpg" : "day.jpg";
 
         // Плавное возвращение яркости
         await this.FadeTo(1, 500, Easing.SinInOut);
