@@ -18,7 +18,7 @@ public partial class StartPage : ContentPage
 
     public List<string> tekstid = new List<string>()
 
-    {"Trips Traps Trull","Lumememm", "Pusle"};
+    {"Trips Traps Trull", "Lumememm", "Pusle"};
 
     ScrollView sv;             
     VerticalStackLayout vsl;   
