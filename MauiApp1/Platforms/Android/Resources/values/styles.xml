@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+
+	<!-- Splash -->
+	<style name="Maui.SplashTheme" parent="@style/Theme.SplashScreen">
+		<item name="windowSplashScreenBackground">@color/splashscreen_background</item>
+		<item name="windowSplashScreenAnimatedIcon">@mipmap/appicon_foreground</item>
+		<item name="postSplashScreenTheme">@style/Maui.MainTheme</item>
+	</style>
+
+	<!-- Основная тема. Важно: наследуемся от MaterialComponents -->
+	<style name="Maui.MainTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+		<item name="colorPrimary">@color/maui_primary</item>
+		<item name="colorPrimaryVariant">@color/maui_primaryDark</item>
+		<item name="colorOnPrimary">@color/maui_textColorPrimary</item>
+		<item name="android:statusBarColor">@color/maui_primaryDark</item>
+		<item name="android:navigationBarColor">@color/maui_primaryDark</item>
+
+		<!-- Явный текстовый стиль -->
+		<item name="android:textAppearance">@style/AppTextAppearance</item>
+	</style>
+
+	<!-- Базовый текст -->
+	<style name="AppTextAppearance" parent="@style/TextAppearance.MaterialComponents.Body1" />
+
+</resources>

@@ -60,6 +60,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="Platforms\Android\Resources\values\styles.xml" />
+	</ItemGroup>
+
+	<ItemGroup>
 	  <Compile Remove="DateTimePage.xaml.cs" />
 	  <Compile Remove="FigurePage.xaml.cs" />
 	  <Compile Remove="TextPage.xaml.cs" />
