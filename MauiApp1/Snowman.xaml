@@ -6,6 +6,20 @@
     Title="Snowman"
     BackgroundImageSource="day.jpg">
 
+    <!-- цвет шрифта при режиме день\ночь -->
+    <ContentPage.Resources>
+         <Color x:Key="PrimaryTextColor">Black</Color>
+
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+        </Style>
+
+        <Style TargetType="Picker">
+            <Setter Property="TextColor" Value="{DynamicResource PrimaryTextColor}" />
+            <Setter Property="TitleColor" Value="{DynamicResource PrimaryTextColor}" />
+        </Style>
+    </ContentPage.Resources>
+
     <Grid>
 
         <AbsoluteLayout x:Name="SnowLayer"
@@ -101,11 +115,16 @@
                         </Picker.Items>
                         </Picker>
 
-                        <Button Grid.Column="2"
-                        Text="Выполнить"
-                        Padding="18,10"
-                        VerticalOptions="Center"
-                        Clicked="RunBtn_Clicked"/>
+                    <Button Grid.Column="2"
+                    x:Name="RunBtn"
+                    Text="Выполнить"
+                    FontSize="14"
+                    Padding="12,8"
+                    CornerRadius="12"
+                    WidthRequest="120"
+                    HeightRequest="36"
+                    VerticalOptions="Center"
+                    Clicked="RunBtn_Clicked"/>
                 </Grid>
 
 
@@ -116,7 +135,8 @@
                       HorizontalOptions="Center"
                       VerticalOptions="EndAndExpand"
                       TranslationY="100"  
-                      Margin="0,6,0,6">
+                      Margin="0,6,0,6"
+                      IsClippedToBounds="False">
 
                     <!-- Низ -->
                     <Ellipse x:Name="BottomCircle"
@@ -137,7 +157,7 @@
                            WidthRequest="150"
                            HeightRequest="120"
                            Opacity="1"
-                           TranslationY="-140"
+                           TranslationY="-142"
                            TranslationX="-10" 
                            Rotation="-20"
                            HorizontalOptions="Center" />
@@ -179,10 +199,12 @@
                     <!-- Руки -->
                     <Line X1="0"  Y1="0"  X2="60" Y2="-20"
                           Stroke="Brown" StrokeThickness="4"
-                          TranslationX="-5" TranslationY="125" />
+                          TranslationX="-5" TranslationY="125" 
+                          ZIndex="10"/>
                     <Line X1="0"  Y1="0"  X2="-60" Y2="-20"
                           Stroke="Brown" StrokeThickness="4"
-                          TranslationX="220" TranslationY="125" />
+                          TranslationX="220" TranslationY="125" 
+                          ZIndex="10"/>
                 </Grid>
 
             </VerticalStackLayout>

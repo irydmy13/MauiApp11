@@ -138,7 +138,6 @@ public partial class Snowman : ContentPage
     private async void RunBtn_Clicked(object sender, EventArgs e)
     {
         var action = (ActionPicker.SelectedItem as string)?.Trim() ?? "";
-        ActionLabel.Text = $" {action}";
 
         // перед новым действием останавливаем танец
         _danceCts?.Cancel();
@@ -246,8 +245,10 @@ public partial class Snowman : ContentPage
     {
         await this.FadeTo(0.3, 500, Easing.SinInOut);
         this.BackgroundImageSource = e.Value ? "night.jpg" : "day.jpg";
+        Resources["PrimaryTextColor"] = e.Value ? Colors.White : Colors.Black;
         await this.FadeTo(1, 500, Easing.SinInOut);
     }
+
 
     // Снег
     private void SnowSwitch_Toggled(object sender, ToggledEventArgs e) => UpdateSnowState();
