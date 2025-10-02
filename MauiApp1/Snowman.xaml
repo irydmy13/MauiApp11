@@ -7,87 +7,16 @@
     BackgroundImageSource="day.jpg">
 
     <Grid>
-        
+
         <AbsoluteLayout x:Name="SnowLayer"
                         InputTransparent="True"
                         HorizontalOptions="FillAndExpand"
                         VerticalOptions="FillAndExpand"
                         ZIndex="0"/>
-
-        <!-- Контент -->
         <ScrollView>
-            <VerticalStackLayout Padding="16,12"
-                                 Spacing="14">
+            <VerticalStackLayout Padding="16,12" Spacing="14">
 
-                <!-- Снеговик -->
-                <Grid x:Name="SnowmanGroup"
-       WidthRequest="220"
-       HeightRequest="300"
-       HorizontalOptions="Center"
-       VerticalOptions="CenterAndExpand"
-       Margin="0,6,0,6">
-                    <!-- НИЗ -->
-                    <Ellipse x:Name="BottomCircle"
-              WidthRequest="130" HeightRequest="130"
-              Fill="White"
-              VerticalOptions="End" />
-                    <!-- СЕРЕДИНА -->
-                    <Ellipse x:Name="MiddleCircle"
-              WidthRequest="100" HeightRequest="100"
-              Fill="White"
-              VerticalOptions="Center"
-              TranslationY="-10"/>
-                    <!-- ГОЛОВА -->
-                    <Ellipse x:Name="HeadCircle"
-              WidthRequest="60" HeightRequest="60"
-              Fill="White"
-              VerticalOptions="Start"
-              TranslationY="40"/>
-
-                    <!-- Ведро -->
-                    <Image Source="bucket.png"
-            WidthRequest="70"
-            HeightRequest="70"
-            Opacity="0.95"
-            TranslationY="-120"
-            Rotation="-15"
-            HorizontalOptions="Center" />
-
-                    <!-- Глаза -->
-                    <Ellipse WidthRequest="6" HeightRequest="6" Fill="Black"
-              HorizontalOptions="Center" TranslationX="-10" TranslationY="-92"/>
-                    <Ellipse WidthRequest="6" HeightRequest="6" Fill="Black"
-              HorizontalOptions="Center" TranslationX="10" TranslationY="-92"/>
-
-                    <!-- Рот -->
-                    <Ellipse WidthRequest="4" HeightRequest="4" Fill="Black"
-              HorizontalOptions="Center" TranslationX="-12" TranslationY="-75"/>
-                    <Ellipse WidthRequest="4" HeightRequest="4" Fill="Black"
-              HorizontalOptions="Center" TranslationX="-6" TranslationY="-72"/>
-                    <Ellipse WidthRequest="4" HeightRequest="4" Fill="Black"
-              HorizontalOptions="Center" TranslationY="-71"/>
-                    <Ellipse WidthRequest="4" HeightRequest="4" Fill="Black"
-              HorizontalOptions="Center" TranslationX="6" TranslationY="-72"/>
-                    <Ellipse WidthRequest="4" HeightRequest="4" Fill="Black"
-              HorizontalOptions="Center" TranslationX="12" TranslationY="-75"/>
-
-                    <!-- Пуговицы -->
-                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
-              HorizontalOptions="Center" TranslationY="-30"/>
-                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
-              HorizontalOptions="Center" TranslationY="-10"/>
-                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
-              HorizontalOptions="Center" TranslationY="0"/>
-
-                    <!-- Руки (ветки) -->
-                    <Line X1="0"  Y1="0"  X2="60" Y2="-20"
-           Stroke="SaddleBrown" StrokeThickness="4"
-           TranslationX="-65" TranslationY="-20" />
-                    <Line X1="0"  Y1="0"  X2="-60" Y2="-20"
-           Stroke="SaddleBrown" StrokeThickness="4"
-           TranslationX="65" TranslationY="-20" />
-                </Grid>
-
+                
                 <!-- День/Ночь/Снег -->
                 <Grid Margin="0,4,0,8" ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
@@ -107,6 +36,12 @@
                     <Switch Grid.Column="5" x:Name="SnowSwitch" Toggled="SnowSwitch_Toggled"/>
                 </Grid>
 
+                <!-- Кнопка музыки -->
+                <Button x:Name="MusicButton"
+                        Text="▶️ Музыка"
+                        Padding="18,10"
+                        Clicked="MusicButton_Clicked"/>
+
                 <!-- Скорость -->
                 <Grid ColumnSpacing="10" RowSpacing="0" Margin="0,6,0,0">
                     <Grid.ColumnDefinitions>
@@ -117,10 +52,10 @@
 
                     <Label Text="Скорость:" VerticalOptions="Center" FontSize="15"/>
                     <Slider x:Name="SpeedSlider" Grid.Column="1"
-            Minimum="200" Maximum="3000"
-            ValueChanged="SpeedSlider_ValueChanged"/>
+                            Minimum="200" Maximum="3000"
+                            ValueChanged="SpeedSlider_ValueChanged"/>
                     <Label x:Name="SpeedValueLabel" Grid.Column="2"
-           Text="800 мс" VerticalOptions="Center" />
+                           Text="800 мс" VerticalOptions="Center" />
                 </Grid>
 
                 <!-- Прозрачность -->
@@ -133,39 +68,123 @@
 
                     <Label Text="Прозрачность:" VerticalOptions="Center" FontSize="15"/>
                     <Slider x:Name="OpacitySlider" Grid.Column="1"
-            Minimum="0.1" Maximum="1" Value="1"
-            ValueChanged="OpacitySlider_ValueChanged"/>
+                            Minimum="0.1" Maximum="1" Value="1"
+                            ValueChanged="OpacitySlider_ValueChanged"/>
                     <Label x:Name="OpacityValueLabel" Grid.Column="2"
-           Text="100%" VerticalOptions="Center"/>
+                           Text="100%" VerticalOptions="Center"/>
                 </Grid>
 
-
-                <!-- Действия -->
-                <Label x:Name="ActionLabel" Text="Действие:" FontSize="15" />
-
                 <!-- Меню действий -->
-                <Grid ColumnSpacing="10" Margin="0,0,0,8">
+                <Grid ColumnSpacing="10" Margin="0,6,0,8">
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Picker Grid.Column="0" x:Name="ActionPicker" Title="Выберите действие">
-                        <Picker.Items>
-                            <x:String>Скрыть</x:String>
-                            <x:String>Показать</x:String>
-                            <x:String>Изменить цвет</x:String>
-                            <x:String>Растопить</x:String>
-                            <x:String>Танцевать</x:String>
-                        </Picker.Items>
-                    </Picker>
+                    <Label x:Name="ActionLabel"
+                    Grid.Column="0"
+                    Text="Действие:"
+                    VerticalOptions="Center"
+                    FontSize="15"/>
 
-                    <Button Grid.Column="1"
-            Text="Выполнить"
-            Padding="18,10"
-            VerticalOptions="Center"
-            Clicked="RunBtn_Clicked"/>
+                    <Picker x:Name="ActionPicker"
+                    Grid.Column="1"
+                    Title="Выберите действие"
+                    HorizontalOptions="FillAndExpand">
+                        <Picker.Items>
+                        <x:String>Скрыть</x:String>
+                        <x:String>Показать</x:String>
+                        <x:String>Изменить цвет</x:String>
+                        <x:String>Растопить</x:String>
+                        <x:String>Танцевать</x:String>
+                        </Picker.Items>
+                        </Picker>
+
+                        <Button Grid.Column="2"
+                        Text="Выполнить"
+                        Padding="18,10"
+                        VerticalOptions="Center"
+                        Clicked="RunBtn_Clicked"/>
                 </Grid>
+
+
+                <!-- СНЕГОВИК -->
+                <Grid x:Name="SnowmanGroup"
+                      WidthRequest="220"
+                      HeightRequest="300"
+                      HorizontalOptions="Center"
+                      VerticalOptions="EndAndExpand"
+                      TranslationY="100"  
+                      Margin="0,6,0,6">
+
+                    <!-- Низ -->
+                    <Ellipse x:Name="BottomCircle"
+                             WidthRequest="150" HeightRequest="150"
+                             Fill="White"
+                             VerticalOptions="End" />
+
+                    <!-- Середина -->
+                    <Ellipse x:Name="MiddleCircle"
+                             WidthRequest="110" HeightRequest="110"
+                             Fill="White"
+                             VerticalOptions="Center"
+                             TranslationY="-30"/>
+
+                    <!-- Ведро -->
+                    <Image x:Name="Bucket"
+                           Source="bucket.png"
+                           WidthRequest="150"
+                           HeightRequest="120"
+                           Opacity="1"
+                           TranslationY="-140"
+                           TranslationX="-10" 
+                           Rotation="-20"
+                           HorizontalOptions="Center" />
+
+                    <!-- Голова -->
+                    <Ellipse x:Name="HeadCircle"
+                             WidthRequest="70" HeightRequest="70"
+                             Fill="White"
+                             VerticalOptions="Start"
+                             TranslationY="10"/>
+
+
+                    <!-- Глаза -->
+                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="-10" TranslationY="-110"/>
+                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="10" TranslationY="-110"/>
+
+                    <!-- Рот -->
+                    <Ellipse WidthRequest="5" HeightRequest="5" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="-12" TranslationY="-90"/>
+                    <Ellipse WidthRequest="5" HeightRequest="5" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="-6" TranslationY="-86"/>
+                    <Ellipse WidthRequest="5" HeightRequest="5" Fill="Black"
+                             HorizontalOptions="Center" TranslationY="-85"/>
+                    <Ellipse WidthRequest="5" HeightRequest="5" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="6" TranslationY="-86"/>
+                    <Ellipse WidthRequest="5" HeightRequest="5" Fill="Black"
+                             HorizontalOptions="Center" TranslationX="12" TranslationY="-90"/>
+
+                    <!-- Пуговицы -->
+                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
+                             HorizontalOptions="Center" TranslationY="-45"/>
+                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
+                             HorizontalOptions="Center" TranslationY="-30"/>
+                    <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"
+                             HorizontalOptions="Center" TranslationY="-15"/>
+
+                    <!-- Руки -->
+                    <Line X1="0"  Y1="0"  X2="60" Y2="-20"
+                          Stroke="Brown" StrokeThickness="4"
+                          TranslationX="-5" TranslationY="125" />
+                    <Line X1="0"  Y1="0"  X2="-60" Y2="-20"
+                          Stroke="Brown" StrokeThickness="4"
+                          TranslationX="220" TranslationY="125" />
+                </Grid>
+
             </VerticalStackLayout>
         </ScrollView>
     </Grid>
