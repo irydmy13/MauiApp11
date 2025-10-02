@@ -22,15 +22,15 @@
 
     <Grid>
 
-        <AbsoluteLayout x:Name="SnowLayer"
-                        InputTransparent="True"
-                        HorizontalOptions="FillAndExpand"
-                        VerticalOptions="FillAndExpand"
-                        ZIndex="0"/>
+        <AbsoluteLayout 
+            x:Name="SnowLayer"
+            InputTransparent="True"
+            HorizontalOptions="FillAndExpand"
+            VerticalOptions="FillAndExpand"
+            ZIndex="0"/>
         <ScrollView>
             <VerticalStackLayout Padding="16,12" Spacing="14">
-
-                
+             
                 <!-- День/Ночь/Снег -->
                 <Grid Margin="0,4,0,8" ColumnSpacing="12">
                     <Grid.ColumnDefinitions>
@@ -127,14 +127,13 @@
                     Clicked="RunBtn_Clicked"/>
                 </Grid>
 
-
                 <!-- СНЕГОВИК -->
                 <Grid x:Name="SnowmanGroup"
                       WidthRequest="220"
                       HeightRequest="300"
                       HorizontalOptions="Center"
                       VerticalOptions="EndAndExpand"
-                      TranslationY="100"  
+                      TranslationY="80"  
                       Margin="0,6,0,6"
                       IsClippedToBounds="False">
 
@@ -168,7 +167,6 @@
                              Fill="White"
                              VerticalOptions="Start"
                              TranslationY="10"/>
-
 
                     <!-- Глаза -->
                     <Ellipse WidthRequest="8" HeightRequest="8" Fill="Black"

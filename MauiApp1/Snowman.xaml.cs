@@ -59,15 +59,8 @@ public partial class Snowman : ContentPage
     {
         base.OnAppearing();
 
-        // Снимаем эталон после разметки (один раз за жизнь страницы)
-        if (!_initialCaptured)
-        {
-            Dispatcher.Dispatch(() =>
-            {
-                CaptureInitialState();
-                _initialCaptured = true;
-            });
-        }
+        // Всегда обновляем базовые координаты из XAML
+        Dispatcher.Dispatch(CaptureInitialState);
 
         if (SnowEnabled) StartSnow();
     }
