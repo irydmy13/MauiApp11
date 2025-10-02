@@ -25,8 +25,7 @@ public partial class Snowman : ContentPage
     const double SliderMin = 200;
     const double SliderMax = 3000;
 
-    // ===== Эталонные (из XAML) трансформации — снимаем один раз =====
-    bool _initialCaptured;
+    // Эталонные (из XAML) трансформации
     double _gTX, _gTY, _gScale;
     double _hTX, _hTY, _hScale;
     double _mTX, _mTY, _mScale;
@@ -43,10 +42,10 @@ public partial class Snowman : ContentPage
         ActionLabel.Text = "Действие:";
 
         // Стартовые значения
-        SpeedSlider.Value = 800;                         // позиция слайдера
-        _speedMs = (uint)(SliderMax + SliderMin - SpeedSlider.Value); // внутренняя длительность
+        SpeedSlider.Value = 800;
+        _speedMs = (uint)(SliderMax + SliderMin - SpeedSlider.Value);
         var pct = (SpeedSlider.Value - SliderMin) / (SliderMax - SliderMin) * 100.0;
-        SpeedValueLabel.Text = $"{Math.Round(pct)}%";   // отображаем в %
+        SpeedValueLabel.Text = $"{Math.Round(pct)}%";
 
         OpacitySlider.Value = 1;
         OpacityValueLabel.Text = "100%";
@@ -110,13 +109,12 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // === Скорость/Прозрачность ===
+    // Скорость/Прозрачность
     private void SpeedSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-        // внутренняя длительность анимаций (мс): больше слайдер — меньше задержка
+        // больше слайдер — меньше задержка
         _speedMs = (uint)(SliderMax + SliderMin - e.NewValue);
-
-        // показываем % (0% — самое медленное, 100% — самое быстрое)
+        // скорость % 
         var pct = (e.NewValue - SliderMin) / (SliderMax - SliderMin) * 100.0;
         SpeedValueLabel.Text = $"{Math.Round(pct)}%";
     }
@@ -171,7 +169,7 @@ public partial class Snowman : ContentPage
     private async Task HideSnowman()
     {
         await SnowmanGroup.FadeTo(0, _speedMs / 2);
-        SnowmanGroup.IsVisible = false; // можно убрать, если не хочешь «прыжка» макета
+        SnowmanGroup.IsVisible = false;
     }
 
     private async Task ShowSnowman()
@@ -352,7 +350,7 @@ public partial class Snowman : ContentPage
         _danceCts?.Cancel();
         StopSnow();
 
-        //останавливаем музыку
+        // останавливаем музыку
         try
         {
             if (_musicPlayer != null)
