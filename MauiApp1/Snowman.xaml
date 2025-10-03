@@ -203,6 +203,18 @@
                           Stroke="Brown" StrokeThickness="4"
                           TranslationX="220" TranslationY="125" 
                           ZIndex="10"/>
+
+                    <!-- Метла -->
+                    <Image x:Name="Broom"
+                           Source="broom.png"
+                           Scale="2" 
+                           WidthRequest="550"
+                           HeightRequest="130"
+                           Opacity="1"
+                           TranslationY="-50"
+                           TranslationX="133" 
+                           Rotation="-7"/>
+                                          
                 </Grid>
 
             </VerticalStackLayout>

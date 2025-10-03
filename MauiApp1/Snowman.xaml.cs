@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
@@ -13,19 +14,20 @@ public partial class Snowman : ContentPage
     readonly Random _rnd = new();
     uint _speedMs = 800;
 
+    // музыка
     private IAudioPlayer? _musicPlayer;
 
-    // Танец/Снег
+    // снег/танец
     CancellationTokenSource? _danceCts;
     CancellationTokenSource? _snowCts;
     bool SnowEnabled => SnowSwitch?.IsToggled == true;
     const int SpawnDelayMs = 150;
 
-    // Пределы слайдера скорости (как в XAML)
+    // границы слайдера скорости
     const double SliderMin = 200;
     const double SliderMax = 3000;
 
-    // Эталонные (из XAML) трансформации
+    // эталонные трансформации (из XAML)
     double _gTX, _gTY, _gScale;
     double _hTX, _hTY, _hScale;
     double _mTX, _mTY, _mScale;
@@ -41,24 +43,23 @@ public partial class Snowman : ContentPage
 
         ActionLabel.Text = "Действие:";
 
-        // Стартовые значения
+        // стартовые значения скорости (в процентах)
         SpeedSlider.Value = 800;
         _speedMs = (uint)(SliderMax + SliderMin - SpeedSlider.Value);
         var pct = (SpeedSlider.Value - SliderMin) / (SliderMax - SliderMin) * 100.0;
         SpeedValueLabel.Text = $"{Math.Round(pct)}%";
 
+        // стартовая прозрачность (применяем ТОЛЬКО к детям)
         OpacitySlider.Value = 1;
         OpacityValueLabel.Text = "100%";
-
-        // применим стартовую прозрачность
-        SnowmanGroup.Opacity = OpacitySlider.Value;
+        SetSnowmanOpacity(OpacitySlider.Value);
     }
 
     protected override void OnAppearing()
     {
         base.OnAppearing();
 
-        // Всегда обновляем базовые координаты из XAML
+        // всегда подхватываем эталон из текущего XAML
         Dispatcher.Dispatch(CaptureInitialState);
 
         if (SnowEnabled) StartSnow();
@@ -76,8 +77,8 @@ public partial class Snowman : ContentPage
         _mTX = MiddleCircle.TranslationX; _mTY = MiddleCircle.TranslationY; _mScale = MiddleCircle.Scale;
         _bTX = BottomCircle.TranslationX; _bTY = BottomCircle.TranslationY; _bScale = BottomCircle.Scale;
 
-        var bucket = this.FindByName<Image>("Bucket");
-        if (bucket != null)
+        // ведро
+        if (this.FindByName<Image>("Bucket") is { } bucket)
         {
             _bucketTX = bucket.TranslationX;
             _bucketTY = bucket.TranslationY;
@@ -94,13 +95,12 @@ public partial class Snowman : ContentPage
         SnowmanGroup.TranslationY = _gTY;
 
         // круги
-        HeadCircle.TranslationX = _hTX; HeadCircle.TranslationY = _hTY; HeadCircle.Scale = _hScale;
-        MiddleCircle.TranslationX = _mTX; MiddleCircle.TranslationY = _mTY; MiddleCircle.Scale = _mScale;
-        BottomCircle.TranslationX = _bTX; BottomCircle.TranslationY = _bTY; BottomCircle.Scale = _bScale;
+        HeadCircle.TranslationX = _hTX; HeadCircle.TranslationY = _hTY; HeadCircle.Scale = _hScale; HeadCircle.Opacity = 1;
+        MiddleCircle.TranslationX = _mTX; MiddleCircle.TranslationY = _mTY; MiddleCircle.Scale = _mScale; MiddleCircle.Opacity = 1;
+        BottomCircle.TranslationX = _bTX; BottomCircle.TranslationY = _bTY; BottomCircle.Scale = _bScale; BottomCircle.Opacity = 1;
 
-        // ведро
-        var bucket = this.FindByName<Image>("Bucket");
-        if (bucket != null)
+        // ведро — в исходное
+        if (this.FindByName<Image>("Bucket") is { } bucket)
         {
             bucket.Opacity = _bucketOpacity;
             bucket.TranslationX = _bucketTX;
@@ -109,28 +109,43 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // Скорость/Прозрачность
+    // ===== helpers для прозрачности у детей =====
+    private void SetSnowmanOpacity(double o)
+    {
+        foreach (var child in SnowmanGroup.Children)
+            if (child is VisualElement ve)
+                ve.Opacity = o;
+    }
+
+    private Task FadeSnowmanTo(double o, uint ms, Easing? easing = null)
+    {
+        easing ??= Easing.Linear;
+        var tasks = new List<Task>();
+        foreach (var child in SnowmanGroup.Children)
+            if (child is VisualElement ve)
+                tasks.Add(ve.FadeTo(o, ms, easing));
+        return Task.WhenAll(tasks);
+    }
+
+    // ===== скорость / прозрачность =====
     private void SpeedSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-        // больше слайдер — меньше задержка
         _speedMs = (uint)(SliderMax + SliderMin - e.NewValue);
-        // скорость % 
         var pct = (e.NewValue - SliderMin) / (SliderMax - SliderMin) * 100.0;
         SpeedValueLabel.Text = $"{Math.Round(pct)}%";
     }
 
     private void OpacitySlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
-        SnowmanGroup.Opacity = e.NewValue;
+        SetSnowmanOpacity(e.NewValue);
         OpacityValueLabel.Text = $"{(int)(e.NewValue * 100)}%";
     }
 
-    // Кнопка «Выполнить»
+    // ===== действия =====
     private async void RunBtn_Clicked(object sender, EventArgs e)
     {
         var action = (ActionPicker.SelectedItem as string)?.Trim() ?? "";
 
-        // перед новым действием останавливаем танец
         _danceCts?.Cancel();
         _danceCts = null;
 
@@ -165,10 +180,9 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // Реализации действий
     private async Task HideSnowman()
     {
-        await SnowmanGroup.FadeTo(0, _speedMs / 2);
+        await FadeSnowmanTo(0, _speedMs / 2, Easing.Linear);
         SnowmanGroup.IsVisible = false;
     }
 
@@ -179,14 +193,15 @@ public partial class Snowman : ContentPage
 
         await SnowmanGroup.TranslateTo(_gTX, _gTY, 1);
         await SnowmanGroup.ScaleTo(_gScale, 1);
-        await SnowmanGroup.FadeTo(OpacitySlider.Value, _speedMs / 2);
+        await FadeSnowmanTo(OpacitySlider.Value, _speedMs / 2, Easing.Linear);
     }
 
     private Task ChangeColor()
     {
-        var snow = Color.FromRgb(_rnd.Next(200, 256),
-                                 _rnd.Next(200, 256),
-                                 _rnd.Next(200, 256));
+        var snow = Color.FromRgb(
+            _rnd.Next(200, 256),
+            _rnd.Next(200, 256),
+            _rnd.Next(200, 256));
 
         HeadCircle.Fill = new SolidColorBrush(snow);
         MiddleCircle.Fill = new SolidColorBrush(snow);
@@ -194,23 +209,23 @@ public partial class Snowman : ContentPage
         return Task.CompletedTask;
     }
 
-    // Растопить
+    // простая «Оттепель»
     private async Task MeltSimple()
     {
         SnowmanGroup.IsVisible = true;
 
         await Task.WhenAll(
-            SnowmanGroup.FadeTo(0.0, _speedMs, Easing.Linear),
+            FadeSnowmanTo(0.0, _speedMs, Easing.Linear),
             SnowmanGroup.ScaleTo(0.4, _speedMs, Easing.CubicIn)
         );
 
         ResetSnowmanState();
-        SnowmanGroup.Opacity = 0;
+        SetSnowmanOpacity(0); // а не Opacity у контейнера
     }
 
     private async Task DanceLoopAsync(CancellationToken ct)
     {
-        const double dx = 30; // амплитуда
+        const double dx = 30;
         try
         {
             while (!ct.IsCancellationRequested)
@@ -231,7 +246,7 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // День/Ночь
+    // ===== день/ночь =====
     private async void DayNightSwitch_Toggled(object sender, ToggledEventArgs e)
     {
         await this.FadeTo(0.3, 500, Easing.SinInOut);
@@ -240,8 +255,7 @@ public partial class Snowman : ContentPage
         await this.FadeTo(1, 500, Easing.SinInOut);
     }
 
-
-    // Снег
+    // ===== снег =====
     private void SnowSwitch_Toggled(object sender, ToggledEventArgs e) => UpdateSnowState();
 
     private void UpdateSnowState()
@@ -314,7 +328,7 @@ public partial class Snowman : ContentPage
         });
     }
 
-    // ВКЛ/ПАУЗА музыки
+    // ===== музыка =====
     private async void MusicButton_Clicked(object sender, EventArgs e)
     {
         try
@@ -323,7 +337,7 @@ public partial class Snowman : ContentPage
             {
                 var stream = await FileSystem.OpenAppPackageFileAsync("christmas.wav");
                 _musicPlayer = AudioManager.Current.CreatePlayer(stream);
-                _musicPlayer.Loop = true; // по кругу
+                _musicPlayer.Loop = true;
             }
 
             if (_musicPlayer.IsPlaying)
@@ -350,7 +364,7 @@ public partial class Snowman : ContentPage
         _danceCts?.Cancel();
         StopSnow();
 
-        // останавливаем музыку
+        // стоп музыка
         try
         {
             if (_musicPlayer != null)
@@ -360,6 +374,6 @@ public partial class Snowman : ContentPage
                 _musicPlayer = null;
             }
         }
-        catch { /* игнорируем */ }
+        catch { /* ignore */ }
     }
 }
