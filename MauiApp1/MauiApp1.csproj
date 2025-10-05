@@ -67,16 +67,20 @@
 	<ItemGroup>
 	  <Compile Remove="DateTimePage.xaml.cs" />
 	  <Compile Remove="FigurePage.xaml.cs" />
+	  <Compile Remove="GridPage.xaml.cs" />
 	  <Compile Remove="TextPage.xaml.cs" />
 	  <Compile Remove="TimerPage.xaml.cs" />
+	  <Compile Remove="TttPage.xaml.cs" />
 	  <Compile Remove="Valgusfoor.xaml.cs" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <MauiXaml Remove="DateTimePage.xaml" />
 	  <MauiXaml Remove="FigurePage.xaml" />
+	  <MauiXaml Remove="GridPage.xaml" />
 	  <MauiXaml Remove="TextPage.xaml" />
 	  <MauiXaml Remove="TimerPage.xaml" />
+	  <MauiXaml Remove="TttPage.xaml" />
 	  <MauiXaml Remove="Valgusfoor.xaml" />
 	</ItemGroup>
 
