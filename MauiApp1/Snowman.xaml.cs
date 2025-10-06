@@ -109,7 +109,7 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // ===== helpers для прозрачности у детей =====
+    // для прозрачности у детей
     private void SetSnowmanOpacity(double o)
     {
         foreach (var child in SnowmanGroup.Children)
@@ -127,7 +127,7 @@ public partial class Snowman : ContentPage
         return Task.WhenAll(tasks);
     }
 
-    // ===== скорость / прозрачность =====
+    // скорость / прозрачность
     private void SpeedSlider_ValueChanged(object sender, ValueChangedEventArgs e)
     {
         _speedMs = (uint)(SliderMax + SliderMin - e.NewValue);
@@ -141,7 +141,7 @@ public partial class Snowman : ContentPage
         OpacityValueLabel.Text = $"{(int)(e.NewValue * 100)}%";
     }
 
-    // ===== действия =====
+    // действия
     private async void RunBtn_Clicked(object sender, EventArgs e)
     {
         var action = (ActionPicker.SelectedItem as string)?.Trim() ?? "";
@@ -209,7 +209,7 @@ public partial class Snowman : ContentPage
         return Task.CompletedTask;
     }
 
-    // простая «Оттепель»
+    // «Оттепель»
     private async Task MeltSimple()
     {
         SnowmanGroup.IsVisible = true;
@@ -220,7 +220,7 @@ public partial class Snowman : ContentPage
         );
 
         ResetSnowmanState();
-        SetSnowmanOpacity(0); // а не Opacity у контейнера
+        SetSnowmanOpacity(0);
     }
 
     private async Task DanceLoopAsync(CancellationToken ct)
@@ -246,7 +246,7 @@ public partial class Snowman : ContentPage
         }
     }
 
-    // ===== день/ночь =====
+    // день/ночь
     private async void DayNightSwitch_Toggled(object sender, ToggledEventArgs e)
     {
         await this.FadeTo(0.3, 500, Easing.SinInOut);
@@ -255,7 +255,7 @@ public partial class Snowman : ContentPage
         await this.FadeTo(1, 500, Easing.SinInOut);
     }
 
-    // ===== снег =====
+    // снег
     private void SnowSwitch_Toggled(object sender, ToggledEventArgs e) => UpdateSnowState();
 
     private void UpdateSnowState()
@@ -328,7 +328,7 @@ public partial class Snowman : ContentPage
         });
     }
 
-    // ===== музыка =====
+    // музыка
     private async void MusicButton_Clicked(object sender, EventArgs e)
     {
         try
